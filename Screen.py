@@ -7,8 +7,10 @@
 import pygame as pg
 
 
-def drawSmallCircle(screen, x, y):
-    pg.draw.circle(screen, BLACK, (x, y), 10, 10)
+def drawSmallCircle(screen, x, y, key):
+    pg.draw.circle(screen, GREEN, (x, y), 10, 10)
+    if key:
+        pg.draw.circle(screen, RED, (x, y), 5, 5)
 
 
 pg.init()
@@ -22,23 +24,31 @@ BLUE = (0, 0, 255)
 size = [700, 500]
 screen = pg.display.set_mode(size)
 pg.display.set_caption('Functions')
+pg.mouse.set_visible(False)
 
 done = False
 clock = pg.time.Clock()
+keyF = False
 
 while not done:
-    lineF = False
+
+    mousePress = pg.mouse.get_pressed()
+    pos = pg.mouse.get_pos()
+
+    # screen.fill(WHITE)
+
     for event in pg.event.get():
         if event.type == pg.QUIT:
             done = True
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_f:
-                lineF = True
+                keyF = True
+        elif event.type == pg.KEYUP:
+            if event.key == pg.K_f:
+                keyF = False
 
-    if lineF:
-        drawSmallCircle(screen, 100, 100)
-
-    screen.fill(WHITE)
+    if mousePress[0]:
+        drawSmallCircle(screen, pos[0], pos[1], keyF)
 
     pg.display.flip()
 
