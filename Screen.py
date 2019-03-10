@@ -1,12 +1,13 @@
-# Function display using pygame. Following the rough layout within this tutorial series
-# http://programarcadegames.com/index.php?lang=en&chapter=bitmapped_graphics_and_sound
-# and https://www.pygame.org/docs/
+# Was initially a function visualizer.
+# Now its a game \o/
+# Using https://www.pygame.org/docs/
 # Emerson Maki
 # 03/06/2019
 
 import pygame as pg
 import math
 import random
+import board
 
 
 def draw_small_circle(pos, key, radius):
@@ -56,9 +57,11 @@ key_C = False
 mouse_previous_pos = pg.mouse.get_pos()
 
 while not done:
+    board.DrawBoard(screen)
     mouse_press = pg.mouse.get_pressed()
     mouse_current_pos = pg.mouse.get_pos()
-    mouse_distance = distance(mouse_current_pos, mouse_previous_pos)
+    mouse_distance = distance(mouse_current_pos,
+                              mouse_previous_pos)
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -82,12 +85,15 @@ while not done:
 
     if mouse_press[0]:
         radius = 3
-        # draw_small_circle(mouse_current_pos, key_F, radius)
-        pg.draw.line(screen, GREEN, mouse_previous_pos, mouse_current_pos, radius)
+        pg.draw.line(screen, GREEN,
+                     mouse_previous_pos,
+                     mouse_current_pos,
+                     radius)
 
     if key_J:
-        pg.draw.circle(screen,JENNAS,
-                       (random.randint(0, size_X), random.randint(0, size_Y)),
+        pg.draw.circle(screen, JENNAS,
+                       (random.randint(0, size_X),
+                        random.randint(0, size_Y)),
                        random.randint(40, 100),
                        random.randint(0, 39)
                        )
