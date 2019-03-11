@@ -8,12 +8,13 @@ import pygame as pg
 import math
 import random
 import board
+import colors
 
 
 def draw_small_circle(pos, key, radius):
-    pg.draw.circle(screen, GREEN, pos, radius, 1)
+    pg.draw.circle(screen, colors.GREEN, pos, radius, 1)
     if key:
-        pg.draw.circle(screen, RED, pos, 5, 5)
+        pg.draw.circle(screen, colors.RED, pos, 5, 5)
 
 
 def distance(start, end):
@@ -30,18 +31,10 @@ def distance(start, end):
 
 pg.init()
 
-BLACK =  (0  , 0  , 0  )
-WHITE =  (255, 255, 255)
-GREEN =  (0  , 255, 0  )
-RED =    (255, 0  , 0  )
-BLUE =   (0  , 0  , 255)
-JENNAS = (153, 50 , 204)
-
-
 size_X = 700
 size_Y = 500
 size = [size_X, size_Y]
-background_color = BLACK
+background_color = colors.BLACK
 
 screen = pg.display.set_mode(size)
 screen.fill(background_color)
@@ -57,7 +50,7 @@ key_C = False
 mouse_previous_pos = pg.mouse.get_pos()
 
 while not done:
-    board.DrawBoard(screen)
+    board.DrawBoard(screen, cell_type='square')
     mouse_press = pg.mouse.get_pressed()
     mouse_current_pos = pg.mouse.get_pos()
     mouse_distance = distance(mouse_current_pos,
@@ -85,13 +78,13 @@ while not done:
 
     if mouse_press[0]:
         radius = 3
-        pg.draw.line(screen, GREEN,
+        pg.draw.line(screen, colors.GREEN,
                      mouse_previous_pos,
                      mouse_current_pos,
                      radius)
 
     if key_J:
-        pg.draw.circle(screen, JENNAS,
+        pg.draw.circle(screen, colors.JENNAS,
                        (random.randint(0, size_X),
                         random.randint(0, size_Y)),
                        random.randint(40, 100),
