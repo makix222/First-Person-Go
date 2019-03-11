@@ -5,6 +5,7 @@ border_padding = 3
 border_thickness = 2
 edge_dim = border_thickness + border_padding
 
+
 class DrawBoard:
 
     def __init__(self, screen, cell_type):
