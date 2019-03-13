@@ -62,6 +62,7 @@ while not done:
     mouse_distance = distance(mouse_current_pos,
                               mouse_previous_pos)
 
+    # todo: Understand how to pull event logging into its own file.
     for event in pg.event.get():
         if event.type == pg.QUIT:
             done = True
@@ -89,7 +90,6 @@ while not done:
                 key_N = False
             elif event.key == pg.K_k:
                 key_K = False
-
 
     if mouse_press[0]:
         radius = 3
