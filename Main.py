@@ -41,9 +41,11 @@ screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.ball)
+gameboard = board.Board(screen, 'square')
 
 done = False
 clock = pg.time.Clock()
+
 key_F = False
 key_J = False
 key_C = False
@@ -51,6 +53,8 @@ key_N = False
 key_K = False
 
 mouse_previous_pos = pg.mouse.get_pos()
+
+player_exists = False
 
 while not done:
     mouse_press = pg.mouse.get_pressed()
@@ -86,7 +90,6 @@ while not done:
             elif event.key == pg.K_k:
                 key_K = False
 
-    board.DrawBoard(screen, cell_type='square')
 
     if mouse_press[0]:
         radius = 3
@@ -106,10 +109,13 @@ while not done:
         screen.fill(background_color)
 
     if key_N:
-        Player = characters.Player(screen, mouse_current_pos)
+        if not player_exists:
+            Player = characters.Player(screen, mouse_current_pos)
+            player_exists = True
 
-    if key_K:
+    if key_K and player_exists:
         Player.kill_player()
+        player_exists = False
 
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
