@@ -9,6 +9,7 @@ import math
 import random
 import board
 import colors
+import characters
 
 
 def draw_small_circle(pos, key, radius):
@@ -46,11 +47,12 @@ clock = pg.time.Clock()
 key_F = False
 key_J = False
 key_C = False
+key_N = False
+key_K = False
 
 mouse_previous_pos = pg.mouse.get_pos()
 
 while not done:
-    board.DrawBoard(screen, cell_type='square')
     mouse_press = pg.mouse.get_pressed()
     mouse_current_pos = pg.mouse.get_pos()
     mouse_distance = distance(mouse_current_pos,
@@ -67,6 +69,10 @@ while not done:
                 key_J = True
             elif event.key == pg.K_c:
                 key_C = True
+            elif event.key == pg.K_n:
+                key_N = True
+            elif event.key == pg.K_k:
+                key_K = True
 
         elif event.type == pg.KEYUP:
             if event.key == pg.K_f:
@@ -75,6 +81,12 @@ while not done:
                 key_J = False
             elif event.key == pg.K_c:
                 key_C = False
+            elif event.key == pg.K_n:
+                key_N = False
+            elif event.key == pg.K_k:
+                key_K = False
+
+    board.DrawBoard(screen, cell_type='square')
 
     if mouse_press[0]:
         radius = 3
@@ -88,11 +100,16 @@ while not done:
                        (random.randint(0, size_X),
                         random.randint(0, size_Y)),
                        random.randint(40, 100),
-                       random.randint(0, 39)
-                       )
+                       random.randint(0, 39))
 
     if key_C:
         screen.fill(background_color)
+
+    if key_N:
+        Player = characters.Player(screen, mouse_current_pos)
+
+    if key_K:
+        Player.kill_player()
 
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
