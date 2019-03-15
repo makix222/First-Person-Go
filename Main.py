@@ -7,15 +7,9 @@
 import pygame as pg
 import math
 import random
-import board
+import hex_board
 import colors
 import characters
-
-
-def draw_small_circle(pos, key, radius):
-    pg.draw.circle(screen, colors.GREEN, pos, radius, 1)
-    if key:
-        pg.draw.circle(screen, colors.RED, pos, 5, 5)
 
 
 def distance(start, end):
@@ -41,7 +35,8 @@ screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.ball)
-gameboard = board.Board(screen, 'square')
+gameboard = hex_board.Board(screen, colors.WHITE, 30, 1)
+gameboard.define_grid()
 
 done = False
 clock = pg.time.Clock()
@@ -110,7 +105,8 @@ while not done:
 
     if key_N:
         if not player_exists:
-            Player = characters.Player(screen, mouse_current_pos)
+            Player= characters.Player(screen,
+                                      mouse_current_pos)
             player_exists = True
 
     if key_K and player_exists:

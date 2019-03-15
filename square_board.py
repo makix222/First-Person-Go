@@ -7,6 +7,7 @@ class Board:
     border_padding = 3
     border_thickness = 2
     edge_dim = border_thickness + border_padding
+    cell_size = 20
     center_of_cells = np.array([])
     board_grid = np.array([])
 
@@ -14,13 +15,15 @@ class Board:
         self.size = screen.get_size()
         self.screen = screen
         self.board_type = board_type
+        self.usable_size = (self.edge_dim, self.edge_dim)
         self.draw_board()
         self.draw_border()
 
     def draw_board(self):
         # todo: Draw the lines based upon the array board_grid
         pass
-        # Todo:The entire block below me needs to be parsed into the two functions draw_board and define_board_grid
+        # Todo:The entire block below me needs to be parsed into the
+        #  two functions draw_board and define_board_grid
 
         # if self.cell_type == 'square':
         #     spot_size = 20
@@ -51,10 +54,16 @@ class Board:
         # Generate the board_grid array of starting and ending line locations
         # board_grid needs a component of which type of board.
         # Generate center_of_cells array during board_grid generation
+
+        rows = self.size[0] / self.cell_size
         pass
 
     def draw_border(self):
-        # ToDo: Figure out when to implement draw_border with hex and square grids
+        # ToDo: Figure out when to implement draw_border with hex
+        #  and square grids
+
+        # Here is a thought: What if we draw the border after the grid has
+        # been made?
         border_dimensions = (self.border_padding,
                              self.border_padding,
                              self.size[0] - (2 * self.border_padding),
