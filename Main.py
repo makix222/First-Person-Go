@@ -36,7 +36,6 @@ screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.ball)
 gameboard = hex_board.Board(screen, colors.WHITE, 30, 1)
-gameboard.define_grid()
 
 done = False
 clock = pg.time.Clock()
