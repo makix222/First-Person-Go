@@ -13,6 +13,7 @@ import characters
 
 
 def distance(start, end):
+    # Todo: This is broken. Does it even need to be here? Pull into something?
     dist = 0
     if len(start) == len(end) == 1:
         dist = abs(start - end)
@@ -34,8 +35,8 @@ background_color = colors.BLACK
 screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
-pg.mouse.set_cursor(*pg.cursors.ball)
-gameboard = hex_board.Board(screen, colors.WHITE, 30, 1)
+pg.mouse.set_cursor(*pg.cursors.diamond)
+gameboard = hex_board.Board(screen, colors.WHITE, cell_size=30, wall_thickness=3)
 
 done = False
 clock = pg.time.Clock()
@@ -45,6 +46,7 @@ key_J = False
 key_C = False
 key_N = False
 key_K = False
+key_T = False
 
 mouse_previous_pos = pg.mouse.get_pos()
 
@@ -72,6 +74,8 @@ while not done:
                 key_N = True
             elif event.key == pg.K_k:
                 key_K = True
+            elif event.key == pg.K_t:
+                key_T = True
 
         elif event.type == pg.KEYUP:
             if event.key == pg.K_f:
@@ -101,6 +105,7 @@ while not done:
 
     if key_C:
         screen.fill(background_color)
+        gameboard.draw_grid()
 
     if key_N:
         if not player_exists:
@@ -112,10 +117,14 @@ while not done:
         Player.kill_player()
         player_exists = False
 
+    # Todo: Dont forget to test using these. Dont keep in final version.
+    # gameboard.draw_grid()
+    # gameboard.convert_pos_to_center(mouse_current_pos)
+
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
 
-    clock.tick(60)
+    clock.tick(2)
 
 
 pg.quit()
