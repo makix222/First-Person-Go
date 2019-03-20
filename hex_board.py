@@ -32,7 +32,7 @@ class Board:
         # Used to generate the center points for all further grid development
         start = self.point_cloud[(0, 0)]
         # Workable finds largest area where a hex cell looks the best.
-        workable_area = tuple(np.add(self.size, start))
+        workable_area = tuple(np.subtract(self.size, start))
 
         # Figure out the exact area of the screen we want to work in.
         cells_horizontal = int(workable_area[0] / (1.5 * self.cell_radius))
@@ -43,7 +43,7 @@ class Board:
         y_caught = False
         x_offset = 0
         y_offset = 0
-        # Todo: Figure out the centering function
+
         for y in range(cells_vertical):
             # figure out the y position component
             y_pos = int(y * self.cell_height) + start[1]
@@ -54,34 +54,51 @@ class Board:
                     width_addition = x * int(self.cell_radius * 1.5)
                     x_pos = width_addition + int(self.cell_radius)
                     # Again, make sure to check screen overflow
-                    if x_pos + self.cell_radius < self.size[0]:
+                    if y_pos + int(self.cell_height/2) < self.size[0]:
                         # This is important to keep initial y pos clean.
                         new_y_pos = y_pos
                         # If here is for offset hex grid.
                         if x % 2 is not 0:
                             new_y_pos = y_pos + int(self.cell_height/2)
                         new_pos = (x_pos, new_y_pos)
+                        print(new_pos)
                         self.point_cloud[x, y] = new_pos
                     elif x_caught is False:
-                        # Todo: Why is this coming up neg?
                         # we are here to capture values for centering the grid
                         x_caught = True
-                        x_temp = abs(self.size[0] - x_pos)
-                        x_offset = int(x_temp - int(self.cell_radius / 2) / 2)
+                        x_offset = x_pos
             elif y_caught is False:
-                # todo: X came up neg, will this one to?
                 # now that we have overflown the screen, lets center the grid.
                 y_caught = True
-                y_temp = abs(self.size[1] - y_pos)
-                y_offset = int(y_temp - int(self.cell_height / 2) / 2)
-        print(x_offset, y_offset)
-        # todo: Fix the center stuff. It has not worked yet.
-        # self.__center_cloud(x_offset, y_offset)
+                y_offset = y_pos
+        self.__center_cloud(x_offset, y_offset)
         self.draw_grid()
 
     def __center_cloud(self, x_dis, y_dis):
+        temp_x = 0
+        temp_y = 0
+        x_offset = 0
+        y_offset = 0
+        if x_dis != 0:
+            temp_x = abs(x_dis - self.size[0])
+            if x_dis > self.size[0]:
+                x_offset = int((self.cell_radius - temp_x) / 2)
+            else:
+                x_offset = int((temp_x + (self.cell_radius / 2)) / 2)
+
+        if y_dis != 0:
+            temp_y = abs(y_dis - self.size[1])
+            if y_dis > self.size[1]:
+                y_offset = int(((self.cell_height / 2) - temp_y / 2))
+            else:
+                y_offset = int((temp_y + (self.cell_height / 2)) / 2)
+
+        print(x_dis, temp_x)
+        print(y_dis, temp_y)
+
+        print(x_offset, y_offset)
         for loc_key, pos_value in self.point_cloud.items():
-            new_pos = tuple(np.add(pos_value, (x_dis, y_dis)))
+            new_pos = tuple(np.add(pos_value, (x_offset, y_offset)))
             self.point_cloud[loc_key] = new_pos
 
     def draw_grid(self):
@@ -108,6 +125,9 @@ class Board:
         pg.draw.line(self.screen, self.color, pos4, pos5, wall)
         pg.draw.line(self.screen, self.color, pos5, pos0, wall)
 
+        # An interesting drawing that I dont want to loose.
+        # pg.draw.circle(self.screen, colors.RED, pos, self.cell_height, 1)
+
     def select_cell(self, mouse_pos):
         # Todo: The entire block here is broken. Fix it.
         # Highlight the cell where the mouse position is above
@@ -130,10 +150,14 @@ class Board:
 
     def convert_pos_to_center(self, pos):
         # Todo: Convert the pos into the point_cloud key's and get key's value
-        temp_x = 0
-        temp_y = 0
-        for x,y in pos:
-            temp_x = x / self.cell_width
+        temp_x = int(pos[0] / self.cell_width)
+        temp_y = int(pos[1] / self.cell_height)
+
+        pg.draw.circle(self.screen,
+                       colors.BLUE,
+                       self.point_cloud[(temp_x, temp_y)],
+                       int(self.cell_height / 2),
+                       int(self.cell_height / 4))
 
 
 

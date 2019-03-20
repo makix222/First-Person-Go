@@ -10,6 +10,7 @@ import random
 import hex_board
 import colors
 import characters
+import time
 
 
 def distance(start, end):
@@ -36,7 +37,7 @@ screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.diamond)
-gameboard = hex_board.Board(screen, colors.WHITE, cell_size=30, wall_thickness=3)
+gameboard = hex_board.Board(screen, colors.WHITE, cell_size=19, wall_thickness=3)
 
 done = False
 clock = pg.time.Clock()
@@ -51,6 +52,8 @@ key_T = False
 mouse_previous_pos = pg.mouse.get_pos()
 
 player_exists = False
+
+count = 1
 
 while not done:
     mouse_press = pg.mouse.get_pressed()
@@ -105,7 +108,6 @@ while not done:
 
     if key_C:
         screen.fill(background_color)
-        gameboard.draw_grid()
 
     if key_N:
         if not player_exists:
@@ -117,14 +119,14 @@ while not done:
         Player.kill_player()
         player_exists = False
 
-    # Todo: Dont forget to test using these. Dont keep in final version.
-    # gameboard.draw_grid()
-    # gameboard.convert_pos_to_center(mouse_current_pos)
+    screen.fill(background_color)
+    gameboard.draw_grid()
+    gameboard.convert_pos_to_center(mouse_current_pos)
 
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
 
-    clock.tick(2)
+    clock.tick(60)
 
 
 pg.quit()
