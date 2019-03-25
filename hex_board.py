@@ -61,7 +61,6 @@ class Board:
                         if x % 2 is not 0:
                             new_y_pos = y_pos + int(self.cell_height/2)
                         new_pos = (x_pos, new_y_pos)
-                        print(new_pos)
                         self.point_cloud[x, y] = new_pos
                     elif x_caught is False:
                         # we are here to capture values for centering the grid
@@ -128,37 +127,57 @@ class Board:
         # An interesting drawing that I dont want to loose.
         # pg.draw.circle(self.screen, colors.RED, pos, self.cell_height, 1)
 
-    def select_cell(self, mouse_pos):
-        # Todo: The entire block here is broken. Fix it.
-        # Highlight the cell where the mouse position is above
-        mouse_x = mouse_pos[0]
-        mouse_y = mouse_pos[1]
-        rounded_x = round(mouse_x / self.cell_width)
-        wanted_cell_x = rounded_x * self.cell_width
-        print(wanted_cell_x)
-        temp = [(x, y) for x, y in self.point_cloud if x == mouse_x]
-        # print(temp)
-        if [(x, y) for x, y in self.point_cloud if x == mouse_x]:
-            pg.draw.circle(self.screen, colors.GREEN, (mouse_x, mouse_y), 1, 1)
-        # theory_x = int(mouse_x / self.cell_width)
-        # theory_y = int(mouse_y / self.cell_height)
-        # theory_pos = (theory_x, theory_y)
-        # print(theory_pos)
-        # pg.draw.circle(self.screen, self.color, theory_pos, 1, 1)
+    # Todo: Change this name to a better one.
+    def convert_pos_to_cloud(self, pos):
+        try:
+            x = int(pos[0] / (self.cell_radius * 1.5))
+            temp_y = pos[1]
+            if x % 2 is not 0:
+                temp_y += int(self.cell_height / 2)
+            y = int(temp_y / self.cell_height)
+            neighbors = self.cell_neighbors((x, y))
 
-        pass
+            largest = max(self.point_cloud)
+            measured_dis = 1000000
+            final_value = (x, y)
+            for value in neighbors:
+                # First two If's check neighbor list for good dict keys.
+                if not 0 <= value[0] <= largest[0]:
+                    pass
+                elif not 0 <= value[1] <= largest[1]:
+                    pass
+                else:
+                    temp_pos = self.point_cloud[value]
+                    distance = math.hypot((temp_pos[0] - pos[0]),
+                                          temp_pos[1] - pos[1])
+                    if distance < measured_dis:
+                        final_value = value
+                        measured_dis = distance
 
-    def convert_pos_to_center(self, pos):
-        # Todo: Convert the pos into the point_cloud key's and get key's value
-        temp_x = int(pos[0] / self.cell_width)
-        temp_y = int(pos[1] / self.cell_height)
+            pg.draw.circle(self.screen,
+                           colors.GREEN,
+                           self.point_cloud[final_value],
+                           int(self.cell_height/2),
+                           3)
+        except KeyError:
+            pass
 
-        pg.draw.circle(self.screen,
-                       colors.BLUE,
-                       self.point_cloud[(temp_x, temp_y)],
-                       int(self.cell_height / 2),
-                       int(self.cell_height / 4))
-
-
-
-
+    def cell_neighbors(self, cell_key):
+        # outputs a list of cell neighbor keys.
+        # Can be iter through to check each cell
+        # Output[0] is cell_key. The rest are arbitrary.
+        output = list()
+        output.append(cell_key)
+        if cell_key[0] % 2 is 0:
+            output.append((cell_key[0] - 1, cell_key[1] - 1))
+            output.append((cell_key[0] + 1, cell_key[1]))
+            output.append((cell_key[0] - 1, cell_key[1]))
+            output.append((cell_key[0] + 1, cell_key[1] - 1))
+        else:
+            output.append((cell_key[0] - 1, cell_key[1]))
+            output.append((cell_key[0] + 1, cell_key[1] + 1))
+            output.append((cell_key[0] - 1, cell_key[1] + 1))
+            output.append((cell_key[0] + 1, cell_key[1]))
+        output.append((cell_key[0], cell_key[1] + 1))
+        output.append((cell_key[0], cell_key[1] - 1))
+        return output

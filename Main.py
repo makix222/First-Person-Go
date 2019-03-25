@@ -37,7 +37,7 @@ screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.diamond)
-gameboard = hex_board.Board(screen, colors.WHITE, cell_size=19, wall_thickness=3)
+gameboard = hex_board.Board(screen, colors.WHITE, cell_size=30, wall_thickness=3)
 
 done = False
 clock = pg.time.Clock()
@@ -111,8 +111,7 @@ while not done:
 
     if key_N:
         if not player_exists:
-            Player= characters.Player(screen,
-                                      mouse_current_pos)
+            Player = characters.Player(screen, mouse_current_pos)
             player_exists = True
 
     if key_K and player_exists:
@@ -121,7 +120,7 @@ while not done:
 
     screen.fill(background_color)
     gameboard.draw_grid()
-    gameboard.convert_pos_to_center(mouse_current_pos)
+    gameboard.convert_pos_to_cloud(mouse_current_pos)
 
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
