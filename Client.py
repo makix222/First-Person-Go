@@ -1,7 +1,4 @@
-a = 1
-
 # client window to hold the main.py
-
 import wx
 
 app = wx.App()
