@@ -28,8 +28,8 @@ def distance(start, end):
 
 pg.init()
 
-size_X = 700
-size_Y = 500
+size_X = 800
+size_Y = 600
 size = [size_X, size_Y]
 background_color = colors.BLACK
 
@@ -37,7 +37,7 @@ screen = pg.display.set_mode(size)
 screen.fill(background_color)
 pg.display.set_caption('Functions')
 pg.mouse.set_cursor(*pg.cursors.diamond)
-gameboard = hex_board.Board(screen, colors.WHITE, cell_size=30, wall_thickness=3)
+gameboard = hex_board.Board(screen, colors.WHITE, cell_size=26, wall_thickness=3)
 
 done = False
 clock = pg.time.Clock()
@@ -54,6 +54,8 @@ mouse_previous_pos = pg.mouse.get_pos()
 player_exists = False
 
 count = 1
+mouse_press = (None, None)
+mouse_current_pos = mouse_press
 
 while not done:
     mouse_press = pg.mouse.get_pressed()
@@ -111,17 +113,18 @@ while not done:
 
     if key_N:
         if not player_exists:
-            Player = characters.Player(screen, mouse_current_pos)
+            Player = characters.Player(screen,
+                                       gameboard.convert_pos_to_cloud(mouse_current_pos))
             player_exists = True
 
     if key_K and player_exists:
         Player.kill_player()
         player_exists = False
-
-    screen.fill(background_color)
-    gameboard.draw_grid()
-    gameboard.convert_pos_to_cloud(mouse_current_pos)
-
+    pg.draw.line(screen,
+                 colors.JENNAS,
+                 gameboard.cell_select(mouse_current_pos),
+                 mouse_current_pos,
+                 2)
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
 

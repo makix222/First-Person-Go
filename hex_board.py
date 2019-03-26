@@ -38,17 +38,11 @@ class Board:
         cells_horizontal = int(workable_area[0] / (1.5 * self.cell_radius))
         cells_vertical = int(workable_area[1] / self.cell_height)
 
-        # These caught values are speed improvements for centering the grid.
-        x_caught = False
-        y_caught = False
-        x_offset = 0
-        y_offset = 0
-
         for y in range(cells_vertical):
             # figure out the y position component
             y_pos = int(y * self.cell_height) + start[1]
             # make sure a cell drawn at this pos will not overflow the screen
-            if y_pos + int(self.cell_height/2) < self.size[1]:
+            if y_pos + int(self.cell_height/2) <= self.size[1]:
                 for x in range(cells_horizontal):
                     # set up useful variables
                     width_addition = x * int(self.cell_radius * 1.5)
@@ -62,47 +56,64 @@ class Board:
                             new_y_pos = y_pos + int(self.cell_height/2)
                         new_pos = (x_pos, new_y_pos)
                         self.point_cloud[x, y] = new_pos
-                    elif x_caught is False:
-                        # we are here to capture values for centering the grid
-                        x_caught = True
-                        x_offset = x_pos
-            elif y_caught is False:
-                # now that we have overflown the screen, lets center the grid.
-                y_caught = True
-                y_offset = y_pos
-        self.__center_cloud(x_offset, y_offset)
+        # self.__center_transform()
         self.draw_grid()
 
-    def __center_cloud(self, x_dis, y_dis):
-        temp_x = 0
-        temp_y = 0
-        x_offset = 0
-        y_offset = 0
-        if x_dis != 0:
-            temp_x = abs(x_dis - self.size[0])
-            if x_dis > self.size[0]:
-                x_offset = int((self.cell_radius - temp_x) / 2)
-            else:
-                x_offset = int((temp_x + (self.cell_radius / 2)) / 2)
+    def __center_transform(self):
+        # New idea:
+        # Imagine taking the last value of the point_cloud
+        # we should be able to use those values to calc the offset distance.
+        # Note: x even or odd must be considered. If even, add half height.
 
-        if y_dis != 0:
-            temp_y = abs(y_dis - self.size[1])
-            if y_dis > self.size[1]:
-                y_offset = int(((self.cell_height / 2) - temp_y / 2))
-            else:
-                y_offset = int((temp_y + (self.cell_height / 2)) / 2)
+        last_key = max(self.point_cloud)
+        last_value = self.point_cloud[last_key]
+        print(last_key, last_value)
+        # take last_point and figure out the horizontal point.
+        # find difference between edge of last cell and screen edge
+        horz_edge = last_value[0] + self.cell_radius
+        horz_diff = abs(int((self.size[0] - horz_edge) / 2))
 
-        print(x_dis, temp_x)
-        print(y_dis, temp_y)
+        # Now do the same check to see what the largest value[1] is
+        # get the distance between cell edge and screen wall
+        vert_edge = last_value[1] + int(self.cell_height / 2)
+        if last_key[0] % 2 is 0:
+            vert_edge = int(vert_edge + (self.cell_height / 2))
+        vert_diff = abs(int((self.size[1] - vert_edge) / 2))
+        print(horz_diff, vert_diff)
 
-        print(x_offset, y_offset)
-        for loc_key, pos_value in self.point_cloud.items():
-            new_pos = tuple(np.add(pos_value, (x_offset, y_offset)))
-            self.point_cloud[loc_key] = new_pos
+        # now that we have the two _diff measurements, change the point cloud.
+        for each in self.point_cloud:
+            self.point_cloud[each] = tuple(np.add(self.point_cloud[each],
+                                                  (horz_diff, vert_diff)))
+
+    def __convert_centered(self, input):
+        # Return a tuple that's been centered.
+        last_key = max(self.point_cloud)
+        last_value = self.point_cloud[last_key]
+        print(last_key, last_value)
+        # take last_point and figure out the horizontal point.
+        # find difference between edge of last cell and screen edge
+        horz_edge = last_value[0] + self.cell_radius
+        horz_diff = abs(int((self.size[0] - horz_edge) / 2))
+
+        # Now do the same check to see what the largest value[1] is
+        # get the distance between cell edge and screen wall
+        vert_edge = last_value[1] + int(self.cell_height / 2)
+        if last_key[0] % 2 is 0:
+            vert_edge = int(vert_edge + (self.cell_height / 2))
+        vert_diff = abs(int((self.size[1] - vert_edge) / 2))
+
+        return tuple(np.add(input, (horz_diff, vert_diff)))
+
+    def cell_select(self, mouse):
+        # Take in the mouse pos, figure out the pos, transform it to centered
+        temp = self.convert_pos_to_cloud(mouse)
+        return self.__convert_centered(temp)
+        pass
 
     def draw_grid(self):
         for loc_key, pos_value in self.point_cloud.items():
-            self.__draw_hex(pos_value)
+            self.__draw_hex(self.__convert_centered(pos_value))
 
     def __draw_hex(self, pos):
         # First figure out the 6 positions of the hex.
@@ -116,7 +127,7 @@ class Board:
         pos3 = (pos[0] + r, pos[1])
         pos4 = (pos[0] + (r/2), pos[1] - (r * height))
         pos5 = (pos[0] - (r/2), pos[1] - (r * height))
-
+        # Todo: Make this a loop?
         pg.draw.line(self.screen, self.color, pos0, pos1, wall)
         pg.draw.line(self.screen, self.color, pos1, pos2, wall)
         pg.draw.line(self.screen, self.color, pos2, pos3, wall)
@@ -129,6 +140,7 @@ class Board:
 
     # Todo: Change this name to a better one.
     def convert_pos_to_cloud(self, pos):
+        # Returns the tuple position of the cell which the given pos is in.
         try:
             x = int(pos[0] / (self.cell_radius * 1.5))
             temp_y = pos[1]
@@ -153,21 +165,19 @@ class Board:
                     if distance < measured_dis:
                         final_value = value
                         measured_dis = distance
-
-            pg.draw.circle(self.screen,
-                           colors.GREEN,
-                           self.point_cloud[final_value],
-                           int(self.cell_height/2),
-                           3)
+            return self.point_cloud[final_value]
         except KeyError:
-            pass
+            print("For some reason, I don't have that position in the cloud")
 
-    def cell_neighbors(self, cell_key):
+    @staticmethod
+    def cell_neighbors(cell_key):
         # outputs a list of cell neighbor keys.
         # Can be iter through to check each cell
         # Output[0] is cell_key. The rest are arbitrary.
+        # Todo: Clean this up. It was made at midnight and I was not clever.
         output = list()
         output.append(cell_key)
+        # Odd numbered cell columns look at neighbors differently.
         if cell_key[0] % 2 is 0:
             output.append((cell_key[0] - 1, cell_key[1] - 1))
             output.append((cell_key[0] + 1, cell_key[1]))
