@@ -27,6 +27,7 @@ class Board:
 
         # Functions to build a grid
         self.generate_point_cloud()
+        self.draw_grid()
 
     def generate_point_cloud(self):
         # Used to generate the center points for all further grid development
@@ -56,41 +57,13 @@ class Board:
                             new_y_pos = y_pos + int(self.cell_height/2)
                         new_pos = (x_pos, new_y_pos)
                         self.point_cloud[x, y] = new_pos
-        # self.__center_transform()
-        self.draw_grid()
 
-    def __center_transform(self):
-        # New idea:
-        # Imagine taking the last value of the point_cloud
-        # we should be able to use those values to calc the offset distance.
-        # Note: x even or odd must be considered. If even, add half height.
-
-        last_key = max(self.point_cloud)
-        last_value = self.point_cloud[last_key]
-        print(last_key, last_value)
-        # take last_point and figure out the horizontal point.
-        # find difference between edge of last cell and screen edge
-        horz_edge = last_value[0] + self.cell_radius
-        horz_diff = abs(int((self.size[0] - horz_edge) / 2))
-
-        # Now do the same check to see what the largest value[1] is
-        # get the distance between cell edge and screen wall
-        vert_edge = last_value[1] + int(self.cell_height / 2)
-        if last_key[0] % 2 is 0:
-            vert_edge = int(vert_edge + (self.cell_height / 2))
-        vert_diff = abs(int((self.size[1] - vert_edge) / 2))
-        print(horz_diff, vert_diff)
-
-        # now that we have the two _diff measurements, change the point cloud.
-        for each in self.point_cloud:
-            self.point_cloud[each] = tuple(np.add(self.point_cloud[each],
-                                                  (horz_diff, vert_diff)))
-
-    def __convert_centered(self, input):
+    def __convert_centered_pos(self, input_pos):
         # Return a tuple that's been centered.
+
         last_key = max(self.point_cloud)
         last_value = self.point_cloud[last_key]
-        print(last_key, last_value)
+
         # take last_point and figure out the horizontal point.
         # find difference between edge of last cell and screen edge
         horz_edge = last_value[0] + self.cell_radius
@@ -103,17 +76,26 @@ class Board:
             vert_edge = int(vert_edge + (self.cell_height / 2))
         vert_diff = abs(int((self.size[1] - vert_edge) / 2))
 
-        return tuple(np.add(input, (horz_diff, vert_diff)))
+        if self.tuple_range(input_pos, self.size):
+            new_pos = tuple(np.add(input_pos, (horz_diff, vert_diff)))
+            return new_pos
+        else:
+            return input_pos
 
     def cell_select(self, mouse):
         # Take in the mouse pos, figure out the pos, transform it to centered
         temp = self.convert_pos_to_cloud(mouse)
-        return self.__convert_centered(temp)
-        pass
+        if temp is not None:
+            return temp
+        else:
+            inhert_return = self.point_cloud[(0,0)]
+            return inhert_return
+        # return self.__convert_centered_pos(temp)
 
     def draw_grid(self):
         for loc_key, pos_value in self.point_cloud.items():
-            self.__draw_hex(self.__convert_centered(pos_value))
+            # self.__draw_hex(self.__convert_centered_pos(pos_value))
+            self.__draw_hex(pos_value)
 
     def __draw_hex(self, pos):
         # First figure out the 6 positions of the hex.
@@ -142,11 +124,13 @@ class Board:
     def convert_pos_to_cloud(self, pos):
         # Returns the tuple position of the cell which the given pos is in.
         try:
+            # convert the pos to a point cloud position
             x = int(pos[0] / (self.cell_radius * 1.5))
             temp_y = pos[1]
             if x % 2 is not 0:
                 temp_y += int(self.cell_height / 2)
             y = int(temp_y / self.cell_height)
+            # now that is been converted, check for its neighbors
             neighbors = self.cell_neighbors((x, y))
 
             largest = max(self.point_cloud)
@@ -165,9 +149,10 @@ class Board:
                     if distance < measured_dis:
                         final_value = value
                         measured_dis = distance
+
             return self.point_cloud[final_value]
         except KeyError:
-            print("For some reason, I don't have that position in the cloud")
+            return None
 
     @staticmethod
     def cell_neighbors(cell_key):
@@ -191,3 +176,16 @@ class Board:
         output.append((cell_key[0], cell_key[1] + 1))
         output.append((cell_key[0], cell_key[1] - 1))
         return output
+
+    @staticmethod
+    def tuple_range(input_tuple, range_tuple):
+        # will output boolean if input is inside the range_tuple
+        # assumes range starts at 0
+        in_x = input_tuple[0]
+        in_y = input_tuple[1]
+        range_x = range_tuple[0]
+        range_y = range_tuple[1]
+        if 0 <= in_x <= range_x and 0 <= in_y <= range_y:
+            return True
+        else:
+            return False

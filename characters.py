@@ -61,6 +61,15 @@ class Player:
                          cross_2_start,
                          cross_2_end, 4)
 
+    def move_player(self, pos):
+        # Kill previous location
+        self.status = 'dead'
+        self.__draw_player()
+        self.pos = pos
+        self.status = 'alive'
+        self.__draw_player()
+
+
 
 class Enemy:
     def __init__(self):

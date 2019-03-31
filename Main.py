@@ -27,6 +27,7 @@ def distance(start, end):
 
 
 pg.init()
+pg.font.init()
 
 size_X = 800
 size_Y = 600
@@ -95,11 +96,15 @@ while not done:
                 key_K = False
 
     if mouse_press[0]:
-        radius = 3
-        pg.draw.line(screen, colors.GREEN,
-                     mouse_previous_pos,
-                     mouse_current_pos,
-                     radius)
+        # Create player
+        mouse_cloud = gameboard.convert_pos_to_cloud(mouse_current_pos)
+        if not player_exists:
+            Player = characters.Player(screen, mouse_cloud)
+            player_exists = True
+
+        # If player exists, Move player onto mouse location
+        elif player_exists:
+            Player.move_player(gameboard.convert_pos_to_cloud(mouse_current_pos))
 
     if key_J:
         pg.draw.circle(screen, colors.JENNAS,
@@ -110,21 +115,25 @@ while not done:
 
     if key_C:
         screen.fill(background_color)
+        gameboard.draw_grid()
 
     if key_N:
-        if not player_exists:
-            Player = characters.Player(screen,
-                                       gameboard.convert_pos_to_cloud(mouse_current_pos))
-            player_exists = True
+        pass
 
     if key_K and player_exists:
         Player.kill_player()
         player_exists = False
-    pg.draw.line(screen,
-                 colors.JENNAS,
-                 gameboard.cell_select(mouse_current_pos),
-                 mouse_current_pos,
-                 2)
+
+    if player_exists:
+        Player.pos
+        gameboard.cell_neighbors(gameboard.convert_pos_to_cloud(Player.pos))
+
+    pg.draw.circle(screen,
+                   colors.JENNAS,
+                   gameboard.cell_select(mouse_current_pos),
+                   int(gameboard.cell_height / 2),
+                   3)
+
     mouse_previous_pos = mouse_current_pos
     pg.display.flip()
 
